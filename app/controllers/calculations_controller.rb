@@ -1,5 +1,13 @@
 class CalculationsController < ApplicationController
 
+  def sum_array(arr)
+    sum_val = 0
+    arr.each do |a|
+      sum_val = sum_val + a
+    end
+    return sum_val
+  end
+
   def word_count
     @text = params[:user_text]
     @special_word = params[:user_word]
@@ -13,7 +21,7 @@ class CalculationsController < ApplicationController
 
     @character_count_with_spaces = @text.length
 
-    @character_count_without_spaces = @text.delete(' ').length
+    @character_count_without_spaces = @text.gsub("\n","").gsub(" ", "").length
 
     @word_count = @text.split(" ").length
 
@@ -38,8 +46,8 @@ class CalculationsController < ApplicationController
     # The principal value the user input is in the decimal @principal.
     # ================================================================================
     r_value = @apr/ @years
-    @monthly_payment = (@principal * r_value)/(1-(r_value)**(@years))
-
+    #@monthly_payment = (@principal * r_value)/(1-(r_value)**(@years))
+    @monthly_payment = (@principal * r_value)*(1 + 1/(1+r_value)**(12*@years -1))
     # ================================================================================
     # Your code goes above.
     # ================================================================================
@@ -92,31 +100,37 @@ class CalculationsController < ApplicationController
 
     @range = @maximum - @minimum
 
+    #Median
     if @count%2 == 1
       @median = @sorted_numbers[@count/2 + 1]
     else
-      @median = @sorted_numbers[@count/2]
+      @median = (@sorted_numbers[@count/2] + @sorted_numbers[@count/2 + 1])/2
     end
 
-    @sum = @numbersary.inject(0) {|s,x| s + x}
+    @sum = sum_array(@numbers)
 
     @mean = @sum/@count
 
-    @variance = @numbers.inject(0) {|s,x| s + (x - @mean)**2}
+
+    #Variance
+    variance_arr = []
+
+    @numbers.each do |num|
+      variance_arr.push((num -@mean)**2)
+    end
+
+    @variance = sum_array(variance_arr)
 
     @standard_deviation = @variance**(0.5)
 
     number_hash = Hash.new {}
-    for num in @numbers
-      #Insert number to dictionary
-      if number_hash.key?(:num)
-        number_hash[:num] = number_hash[:num] + 1
+    @numbers.each do |num|
+      if number_hash.key?(num)
+        number_hash[num] = number_hash[num] + 1
       else
-        number_hash[:num] = 1
+        number_hash[num] = 1
       end
     end
-
-    @mode = "Replace this string with your answer."
 
     # ================================================================================
     # Your code goes above.
@@ -124,4 +138,6 @@ class CalculationsController < ApplicationController
 
     render("descriptive_statistics.html.erb")
   end
+
+
 end
