@@ -18,14 +18,16 @@ class CalculationsController < ApplicationController
     # The special word the user input is in the string @special_word.
     # ================================================================================
 
+    text = @text.downcase
 
-    @character_count_with_spaces = @text.length
+    @character_count_with_spaces = text.length
 
-    @character_count_without_spaces = @text.gsub("\n","").gsub(" ", "").length
+    @character_count_without_spaces = text.gsub("\n","").gsub(" ", "").length
 
-    @word_count = @text.split(" ").length
+    words = text.split(" ")
+    @word_count = words.length
 
-    @occurrences = @text.count(@special_word)
+    @occurrences = words.count(@special_word)
 
     # ================================================================================
     # Your code goes above.
@@ -45,9 +47,9 @@ class CalculationsController < ApplicationController
     # The number of years the user input is in the integer @years.
     # The principal value the user input is in the decimal @principal.
     # ================================================================================
-    r_value = @apr/ @years
-    #@monthly_payment = (@principal * r_value)/(1-(r_value)**(@years))
-    @monthly_payment = (@principal * r_value)*(1 + 1/(1+r_value)**(12*@years -1))
+    r_value = @apr/ (100*12)
+    @monthly_payment = @principal * (r_value) / (1-1/(1+(r_value))**(@years * 12))
+
     # ================================================================================
     # Your code goes above.
     # ================================================================================
@@ -104,7 +106,7 @@ class CalculationsController < ApplicationController
     if @count%2 == 1
       @median = @sorted_numbers[@count/2 + 1]
     else
-      @median = (@sorted_numbers[@count/2] + @sorted_numbers[@count/2 + 1])/2
+      @median = (@sorted_numbers[@count/2] + @sorted_numbers[@count/2 - 1])/2
     end
 
     @sum = sum_array(@numbers)
@@ -119,7 +121,7 @@ class CalculationsController < ApplicationController
       variance_arr.push((num -@mean)**2)
     end
 
-    @variance = sum_array(variance_arr)
+    @variance = sum_array(variance_arr)/@count
 
     @standard_deviation = @variance**(0.5)
 
